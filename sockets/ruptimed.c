@@ -16,7 +16,7 @@ extern int initserver(int, const struct sockaddr *, socklen_t, int);
 void
 serve(int sockfd)
 {
-	int		clfd;
+	int	n,     clfd;
 	FILE	*fp;
 	char	buf[BUFLEN];
 
@@ -28,13 +28,30 @@ serve(int sockfd)
 			exit(1);
 		}
 		set_cloexec(clfd);
-		if ((fp = popen("/usr/bin/uptime", "r")) == NULL) {
-			sprintf(buf, "error: %s\n", strerror(errno));
-			send(clfd, buf, strlen(buf), 0);
-		} else {
-			while (fgets(buf, BUFLEN, fp) != NULL)
-				send(clfd, buf, strlen(buf), 0);
-			pclose(fp);
+		
+		if((n = recv(clfd, buf, BUFLEN, 0)) > 0){
+		    if(!strcmp(buf,"utc")){
+		    
+		   	 if ((fp = popen("/bin/date -u", "r")) == NULL) {
+				    sprintf(buf, "error: %s\n", strerror(errno));
+		           	    send(clfd, buf, strlen(buf), 0);
+		   	 } else {
+			   	 while (fgets(buf, BUFLEN, fp) != NULL)
+			   	 send(clfd, buf, strlen(buf), 0);
+			   	 pclose(fp);
+    		  	 }
+		    }
+		    else if(!strcmp(buf, "cst")){
+		    
+		   	 if ((fp = popen("/bin/date", "r")) == NULL) {
+				    sprintf(buf, "error: %s\n", strerror(errno));
+		           	    send(clfd, buf, strlen(buf), 0);
+		   	 } else {
+			   	 while (fgets(buf, BUFLEN, fp) != NULL)
+			   	 send(clfd, buf, strlen(buf), 0);
+			   	 pclose(fp);
+    		  	 }
+                   }
 		}
 		close(clfd);
 	}
@@ -56,7 +73,7 @@ main(int argc, char *argv[])
 		err_sys("malloc error");
 	if (gethostname(host, n) < 0)
 		err_sys("gethostname error");
-	daemonize("ruptimed");
+	daemonize("ruptime");
 	memset(&hint, 0, sizeof(hint));
 	hint.ai_flags = AI_CANONNAME;
 	hint.ai_socktype = SOCK_STREAM;

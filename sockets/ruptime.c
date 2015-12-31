@@ -9,11 +9,13 @@ extern int connect_retry(int, int, int, const struct sockaddr *,
 	socklen_t);
 
 void
-print_uptime(int sockfd)
+print_uptime(int sockfd, char * str)
 {
 	int		n;
 	char	buf[BUFLEN];
 
+	if((n = send(sockfd, str, strlen(str), 0)) < 0)
+	    err_sys("send error");
 	while ((n = recv(sockfd, buf, BUFLEN, 0)) > 0)
 		write(STDOUT_FILENO, buf, n);
 	if (n < 0)
@@ -27,8 +29,8 @@ main(int argc, char *argv[])
 	struct addrinfo	hint;
 	int				sockfd, err;
 
-	if (argc != 2)
-		err_quit("usage: ruptime hostname");
+	if (argc != 3)
+		err_quit("usage: ruptime hostname timeType");
 	memset(&hint, 0, sizeof(hint));
 	hint.ai_socktype = SOCK_STREAM;
 	hint.ai_canonname = NULL;
@@ -41,7 +43,7 @@ main(int argc, char *argv[])
 		  aip->ai_addr, aip->ai_addrlen)) < 0) {
 			err = errno;
 		} else {
-			print_uptime(sockfd);
+			print_uptime(sockfd, argv[2]);
 			exit(0);
 		}
 	}
