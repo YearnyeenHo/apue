@@ -56,6 +56,8 @@ main(int argc, char *argv[])
 		else
 			argv0 = pager;	/* no slash in pager */
 
+		write(STDOUT_FILENO,argv0, strlen(argv0));
+		fprintf(stdout," argv0:%s\n", argv0);
 		if (execl(pager, argv0, (char *)0) < 0)
 			err_sys("execl error for %s", pager);
 	}

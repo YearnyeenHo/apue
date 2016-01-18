@@ -69,8 +69,7 @@ main()
 				if ((n = read(pfd[i].fd, buf, sizeof(buf))) < 0)
 					err_sys("read error");
 				buf[n] = 0;
-				printf("queue id %d, message %s\n", qid[i], buf);
-			}
+				printf("queue id %d, message %s\n", qid[i], buf);			}
 		}
 	}
 
