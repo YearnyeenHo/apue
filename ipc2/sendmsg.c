@@ -5,12 +5,11 @@
 #define NQ 3
 #define MAXMSZ 512
 #define KEY 0x123
-#define NUM 10
 struct mymesg {
 	long mtype;
 	char mtext[MAXMSZ];
 };
-
+int NUM = 0;
 void* sender(void *arg){
 	key_t  * pkey = arg;
 	long qid;
@@ -39,9 +38,17 @@ main(int argc, char *argv[])
 	 key_t key[NQ];
 	pthread_t tid[NQ];
 
-	if (argc != 1) {
-		fprintf(stderr, "usage: sendmsg\n");
+	if (argc != 3) {
+		fprintf(stderr, "usage: sendmsg [-n count]\n");
 		exit(1);
+	}
+	int c;
+	while((c = getopt(argc, argv,"nt:")) != -1)
+	{
+		if(c == 'n'){
+			NUM = atoi(argv[optind]);
+			printf("getopt~~~:%d\n",NUM);
+		}
 	}
 	int i;
 	for(i = 0; i < NQ; ++i)
